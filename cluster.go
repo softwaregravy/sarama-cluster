@@ -71,6 +71,8 @@ func (i offsetInfo) Deserialize() offsetInfo {
 		i.PendingOffsets[offset] = struct{}{}
 	}
 
+	i.Metadata = ""
+
 	return i
 }
 

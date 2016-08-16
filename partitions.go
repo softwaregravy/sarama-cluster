@@ -87,6 +87,12 @@ func (c *partitionConsumer) State() partitionState {
 
 	c.mutex.Lock()
 	state := c.state
+	if state.Info.Metadata == "" {
+		state.Info = state.Info.Serialize()
+	} else if len(state.Info.PendingOffsets) == 0 {
+		state.Info = state.Info.Deserialize()
+	}
+
 	c.mutex.Unlock()
 
 	return state
@@ -98,7 +104,7 @@ func (c *partitionConsumer) MarkCommitted(offset int64) {
 	}
 
 	c.mutex.Lock()
-	if offset == c.state.Info.Offset {
+	if offset == c.state.Info.Offset || c.state.Info.Metadata != "" {
 		c.state.Dirty = false
 	}
 	c.mutex.Unlock()
