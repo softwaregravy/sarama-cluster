@@ -107,6 +107,18 @@ func (c *Consumer) MarkOffset(msg *sarama.ConsumerMessage, metadata string) {
 	c.subs.Fetch(msg.Topic, msg.Partition).MarkOffset(msg.Offset+1, metadata)
 }
 
+func (c *Consumer) AddPendingOffset(msg *sarama.ConsumerMessage) {
+	c.subs.Fetch(msg.Topic, msg.Partition).AddPendingOffset(msg.Offset)
+}
+
+func (c *Consumer) RemovePendingOffset(msg *sarama.ConsumerMessage) {
+	c.subs.Fetch(msg.Topic, msg.Partition).RemovePendingOffset(msg.Offset)
+}
+
+func (c *Consumer) SetOffset(topic string, partition int32, offset int64) {
+	c.subs.Fetch(topic, partition).SetOffset(offset + 1)
+}
+
 // MarkPartitionOffset marks an offset of the provided topic/partition as processed.
 // See MarkOffset for additional explanation.
 func (c *Consumer) MarkPartitionOffset(topic string, partition int32, offset int64, metadata string) {

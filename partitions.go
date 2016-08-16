@@ -110,6 +110,18 @@ func (c *partitionConsumer) MarkCommitted(offset int64) {
 	c.mutex.Unlock()
 }
 
+func (c *partitionConsumer) AddPendingOffset(offset int64) {
+	c.state.Info.PendingOffsets[offset] = struct{}{}
+}
+
+func (c *partitionConsumer) SetOffset(offset int64) {
+	c.pcm.SetOffset(offset)
+}
+
+func (c *partitionConsumer) RemovePendingOffset(offset int64) {
+	c.state.Info.PendingOffsets[offset] = nil
+}
+
 func (c *partitionConsumer) MarkOffset(offset int64, metadata string) {
 	if c == nil {
 		return
@@ -118,7 +130,10 @@ func (c *partitionConsumer) MarkOffset(offset int64, metadata string) {
 	c.mutex.Lock()
 	if offset > c.state.Info.Offset {
 		c.state.Info.Offset = offset
-		c.state.Info.Metadata = metadata
+		// Only commit metadata if it's a valid string.
+		if metadata != "" {
+			c.state.Info.Metadata = metadata
+		}
 		c.state.Dirty = true
 	}
 	c.mutex.Unlock()
