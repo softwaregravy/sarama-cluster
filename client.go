@@ -1,6 +1,6 @@
 package cluster
 
-import "github.com/Shopify/sarama"
+import "github.com/segmentio/sarama"
 
 // Client is a group client
 type Client struct {

@@ -3,7 +3,7 @@ package cluster
 import (
 	"time"
 
-	"github.com/Shopify/sarama"
+	"github.com/segmentio/sarama"
 )
 
 var minVersion = sarama.V0_9_0_0

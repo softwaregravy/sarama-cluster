@@ -1,6 +1,10 @@
 package cluster
 
-import "sort"
+import (
+	"sort"
+	"strconv"
+	"strings"
+)
 
 // Strategy for partition to consumer assignement
 type Strategy string
@@ -36,12 +40,48 @@ type topicPartition struct {
 }
 
 type offsetInfo struct {
-	Offset   int64
-	Metadata string
+	Offset         int64
+	PendingOffsets map[int64]struct{}
+	Metadata       string
+}
+
+func (i offsetInfo) Serialize() offsetInfo {
+	meta := ""
+	for k, _ := range i.PendingOffsets {
+		meta += strconv.FormatInt(k, 10) + ","
+	}
+
+	i.Metadata = meta
+
+	return i
+}
+
+func (i offsetInfo) Deserialize() offsetInfo {
+	parts := strings.Split(i.Metadata, ",")
+	for _, k := range parts {
+		if k == "" {
+			continue
+		}
+
+		offset, err := strconv.ParseInt(k, 10, 64)
+		// This should NEVER happen!
+		if err != nil {
+			continue
+		}
+		i.PendingOffsets[offset] = struct{}{}
+	}
+
+	return i
 }
 
 func (i offsetInfo) NextOffset(fallback int64) int64 {
 	if i.Offset > -1 {
+		if len(i.PendingOffsets) > 0 {
+			for k, _ := range i.PendingOffsets {
+				return k
+			}
+		}
+
 		return i.Offset
 	}
 	return fallback
