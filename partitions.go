@@ -119,7 +119,7 @@ func (c *partitionConsumer) SetOffset(offset int64) {
 }
 
 func (c *partitionConsumer) RemovePendingOffset(offset int64) {
-	c.state.Info.PendingOffsets[offset] = nil
+	delete(c.state.Info.PendingOffsets, offset)
 }
 
 func (c *partitionConsumer) MarkOffset(offset int64, metadata string) {

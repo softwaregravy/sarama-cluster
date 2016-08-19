@@ -130,6 +130,10 @@ func (c *Consumer) Subscriptions() map[string][]int32 {
 	return c.subs.Info()
 }
 
+func (c *Consumer) GetOffset(topic string, partition int32) int64 {
+	return c.subs.Fetch(topic, partition).state.Info.Offset
+}
+
 // CommitOffsets manually commits marked offsets
 func (c *Consumer) CommitOffsets() error {
 	c.commitMu.Lock()
